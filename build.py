@@ -98,11 +98,7 @@ def build_app_asar(src_path, dst_path):
     pre_new = pre.replace(old1, new1)
 
     # карта локалей main-процесса (имя fwt/hxt может меняться — ищем по содержимому)
-    m = re.search(rb'\w+\{en:"en-US",de:"de-DE",fr:"fr-FR",ko:"ko-KR",ja:"ja-JP","es-419":"es-419",es:"es-ES",it:"it-IT",hi:"hi-IN",pt:"pt-BR",id:"id-ID"\}', data)
-    if not m:
-        raise RuntimeError('карта локалей main не найдена')
-    main_old = m.group(0)
-    main_new = main_old[:-1] + b',ru:"ru"}'
+    main_re = re.compile(rb'\w+=?\{en:"en-US",de:"de-DE",fr:"fr-FR",ko:"ko-KR",ja:"ja-JP","es-419":"es-419",es:"es-ES",it:"it-IT",hi:"hi-IN",pt:"pt-BR",id:"id-ID"\}')
 
     # собираем по-файлово с пересчётом смещений и integrity (с дедупликацией по offset)
     uniq = {}
@@ -117,16 +113,22 @@ def build_app_asar(src_path, dst_path):
     collect(header['files'], '')
     patches = {'.vite/build/index.pre.js': pre_new}
     blobs, plan, no = [], {}, 0
+    main_patched = False
     for o in sorted(uniq.keys()):
         name, info = uniq[o]
         blob = patches.get(name) or data[ds+o : ds+o+int(info['size'])]
-        # главный бандл: патч карты локалей
-        if name not in patches and b'en:"en-US"' in blob[:10000000] and main_old in blob and name.endswith('.js') and int(info['size']) > 5000000:
-            blob = blob.replace(main_old, main_new)
-            patches[name] = blob
+        # главный бандл: патч карты локалей (ищем прямо в blob)
+        if name not in patches and name.endswith('.js') and int(info['size']) > 3000000:
+            m = main_re.search(blob)
+            if m:
+                blob = blob.replace(m.group(0), m.group(0)[:-1] + b',ru:"ru"}')
+                patches[name] = blob
+                main_patched = True
         plan[o] = (no, blob)
         blobs.append(blob)
         no += len(blob)
+    if not main_patched:
+        raise RuntimeError('карта локалей main не найдена')
 
     def update(d, path=''):
         for name, info in d.items():
@@ -253,9 +255,10 @@ def main():
     version = os.path.basename(claude).split('_')[1]
     print(f'Версия: {version}')
 
-    # переводы
-    ru_main = open(os.path.join(os.path.dirname(__file__), '..', 'translations', 'ru.json'), 'rb').read()
-    ru_dyn = open(os.path.join(os.path.dirname(__file__), '..', 'translations', 'dynamic-ru.json'), 'rb').read()
+    # переводы (из репозитория или из _MEIPASS внутри exe)
+    base = getattr(sys, '_MEIPASS', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+    ru_main = open(os.path.join(base, 'translations', 'ru.json'), 'rb').read()
+    ru_dyn = open(os.path.join(base, 'translations', 'dynamic-ru.json'), 'rb').read()
     print(f'Перевод: {len(json.loads(ru_main))} ключей')
 
     # 1. копия приложения
