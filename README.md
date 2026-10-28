@@ -1,9 +1,23 @@
 # Claude Desktop RU — русский языковой пакет для Claude Desktop (Windows)
 
-Русификация интерфейса Claude Desktop для Windows с установкой в **отдельную папку** —
-официальная версия из Microsoft Store остаётся нетронутой и работает одновременно.
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![Платформа](https://img.shields.io/badge/platform-Windows-lightgrey)](#)
+[![Лицензия MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Строк переведено](https://img.shields.io/badge/%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%BE-38%20892%20%D1%81%D1%82%D1%80%D0%BE%D0%BA-success)](translations/ru.json)
 
-> 📦 Работает с Claude Desktop **4.29.0** (MSIX). Для новых версий — см. «Обновление».
+**Русификация интерфейса Claude Desktop для Windows с установкой в отдельную папку.**
+Официальная версия из Microsoft Store остаётся нетронутой — обе работают одновременно.
+
+| | |
+|---|---|
+| 📦 Поддерживаемая версия | Claude Desktop **4.29.0** (MSIX, Store) |
+| 🌐 Строк переведено | 38 892 из 39 482 (~98,5%) |
+| 🔒 Изменение Store-версии | **нет** — ставится отдельная копия |
+| 🛠 Зависимости | Python 3.10+ (только stdlib) |
+
+> Аналогичные проекты: [claude-desktop-zh-cn](https://github.com/ICERainbow666/claude-desktop-zh-cn) (китайский),
+> [claude-desktop-zh-tw](https://github.com/YuukiReina2023/Claude-zh-TW-LanguagePack) (тайваньский).
+> Русского не существовало — теперь есть.
 
 ## Как это работает
 
